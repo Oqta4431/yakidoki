@@ -1,0 +1,102 @@
+// 他のモードからも共通で呼び出せる関数をエクスポートする
+export function startGame(getIdealTime, { modeName, showIdeal = false }) {
+  console.log("DEBUG: startGame triggered"); //デバッグ用
+  // ボタン、表示用要素を取得
+  const button = document.getElementById("start-btn");
+  const result = document.getElementById("result");
+  const idealDisplay = document.getElementById("ideal-time");
+  const timerDisplay = document.getElementById("timer"); // 経過時間表示用
+  const image = document.getElementById("food-image");   // 画像表示用
+
+  // 計測開始時刻、タイマーID、スペースキー押下フラグを保持する変数
+  let startTime;
+  let intervalId;
+  let isSpacePressed = false;
+
+  // 目標秒数を画面に表示する（showIdeal = true のときだけ）
+  if (showIdeal && idealDisplay) {
+    idealDisplay.textContent = `目標: ${getIdealTime()} 秒`;
+  }
+  else{
+    idealDisplay.textContent = `目標: ?? 秒`;
+  }
+
+  // ボタン押下開始時の処理
+  const startHandler = () => {
+    console.log("DEBUG: startHandler triggered"); //デバッグ用
+    startTime = performance.now();        // 現在時刻を保存
+    result.textContent = "焼き中…🔥";      // 状態メッセージを表示
+    button.classList.add("bg-amber-700"); // 押下中にボタンの色を変更
+
+    // 経過時間を0.01秒単位で更新するタイマーを起動
+    intervalId = setInterval(() => {
+      const elapsed = (performance.now() - startTime) / 1000; // 経過秒数
+      timerDisplay.textContent = `${elapsed.toFixed(2)} 秒`;  // 画面に表示
+
+      // 経過時間によって画像を切り替え
+      if (elapsed < 8.0) {
+        image.src = "/images/sanma_raw.png";      // 生
+      } else if (elapsed < 9.5) {
+        image.src = "/images/sanma_half.png";     // 生焼け
+      } else if (elapsed <= 10.5) {
+        image.src = "/images/sanma_good.png";     // いい焼き
+      } else if (elapsed <= 12.0) {
+        image.src = "/images/sanma_almost.png";   // ちょい焦げ
+      } else {
+        image.src = "/images/sanma_burnt.png";    // 黒焦げ
+      }
+    }, 10); // 10msごとに更新（=0.01秒単位）
+  };
+
+  // ボタン押下終了時の処理
+  const endHandler = () => {
+    clearInterval(intervalId);                // タイマーを止める
+    button.classList.remove("bg-amber-700");  // 押下中の色を解除
+
+    // 実際に押していた時間を計算
+    const endTime = performance.now();
+    const diff = (endTime - startTime) / 1000;
+    const ideal = getIdealTime();
+    const gap = Math.abs(diff - ideal);
+
+    // 誤差に応じて結果メッセージを決定
+    let message;
+    if (gap < 0.5) {
+      message = `✨ 大成功！ ${diff.toFixed(2)}秒`;
+    } else if (gap < 2) {
+      message = `まぁまぁ… ${diff.toFixed(2)}秒`;
+    } else {
+      message = `💀 失敗！ ${diff.toFixed(2)}秒`;
+    }
+
+    // 結果を画面に表示
+    result.innerHTML = message;
+  };
+
+  // ---イベント登録---
+  // マウス操作
+  button.addEventListener("mousedown", startHandler);
+  button.addEventListener("mouseup", endHandler);
+
+  // スマホタッチ操作
+  button.addEventListener("touchstart", startHandler);
+  button.addEventListener("touchend", endHandler);
+
+  // スペースキー押下開始
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !isSpacePressed) {
+      isSpacePressed = true;
+      startHandler();
+      e.preventDefault();
+    }
+  });
+
+  // スペースキー押下終了
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Space" && isSpacePressed) {
+      isSpacePressed = false;
+      endHandler();
+      e.preventDefault();
+    }
+  });
+}

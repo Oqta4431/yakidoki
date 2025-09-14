@@ -1,0 +1,25 @@
+<% content_for :title, "ヤキドキ｜焼き芋" %>
+
+<div class="grid gap-4 place-items-center">
+  <h2 class="text-2xl font-bold text-amber-900">🍠 焼き芋モード</h2>
+
+  <p id="ideal-time" class="text-lg text-slate-700"></p>
+
+  <!-- デバッグ用：リアルタイム経過秒数 -->
+  <p id="timer" class="text-2xl font-mono text-amber-900">0.00 秒</p>
+
+  <!-- サンマ画像 -->
+  <!-- <img id="food-image" src="/images/sanma_raw.png" class="w-64 h-auto" />
+  -->
+
+  <button id="start-btn"
+          class="w-72 h-20 rounded-2xl text-xl font-semibold
+                 bg-amber-600 hover:bg-amber-700 active:scale-95
+                 text-white shadow transition select-none">
+    🔥 長押しして焼こう！
+  </button>
+
+  <p id="result" class="text-lg text-amber-900"></p>
+
+  <%= link_to "🏠 ホームへ戻る", root_path, class: "text-amber-800 underline" %>
+</div>

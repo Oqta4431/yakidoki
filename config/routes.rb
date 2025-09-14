@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   root "games#home"
   get "games/home"
+
+  get "games/sanma", to: "games#sanma"
+  get "games/yakiimo", to: "games#yakiimo"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
