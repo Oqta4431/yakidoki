@@ -28,22 +28,24 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
     result.textContent = "焼き中…🔥";      // 状態メッセージを表示
     button.classList.add("bg-amber-700"); // 押下中にボタンの色を変更
 
+    let currentState = null; // いま表示している状態を保持
+
     // 経過時間を0.01秒単位で更新するタイマーを起動
     intervalId = setInterval(() => {
       const elapsed = (performance.now() - startTime) / 1000; // 経過秒数
       timerDisplay.textContent = `${elapsed.toFixed(2)} 秒`;  // 画面に表示
 
-      // 経過時間によって画像を切り替え
-      if (elapsed < 8.0) {
-        image.src = "/images/sanma_raw.png";      // 生
-      } else if (elapsed < 9.5) {
-        image.src = "/images/sanma_half.png";     // 生焼け
-      } else if (elapsed <= 10.5) {
-        image.src = "/images/sanma_good.png";     // いい焼き
-      } else if (elapsed <= 12.0) {
-        image.src = "/images/sanma_almost.png";   // ちょい焦げ
-      } else {
-        image.src = "/images/sanma_burnt.png";    // 黒焦げ
+      // 経過時間によって画像ステータスを変更
+      if (elapsed < 8.0)        newState = "raw";
+      else if (elapsed < 9.5)   newState = "half";
+      else if (elapsed <= 10.5) newState = "good";
+      else if (elapsed <= 12.0) newState = "almost";
+      else                      newState = "burnt";
+
+      // 状態が変わったときだけsrcを更新
+      if (newState !== currentState){
+        image.src = image.dataset[newState];
+        currentState = newState;
       }
     }, 10); // 10msごとに更新（=0.01秒単位）
   };
