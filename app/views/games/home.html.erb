@@ -5,13 +5,9 @@
   <p class="text-slate-700 text-center">押して、離して、焼きどき判定。</p>
 
   <div class="grid gap-3 w-full max-w-sm">
-    <a class="w-full text-center py-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold opacity-60 pointer-events-none">
-      初級 🐟 サンマ（明日実装）
-    </a>
-    <a class="w-full text-center py-4 rounded-2xl bg-amber-600 text-white font-semibold opacity-60 pointer-events-none">
-      中級 🍠 焼き芋（明後日実装）
-    </a>
-    <a class="w-full text-center py-4 rounded-2xl bg-amber-600 text-white font-semibold opacity-60 pointer-events-none">
+    <%= link_to "初級 🐟 サンマ", games_sanma_path, class:"w-full text-center py-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold" %>
+    <%= link_to "中級 🍠 焼き芋", games_yakiimo_path, class:"w-full text-center py-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-semibold" %>
+    <a class="w-full text-center py-4 rounded-2xl bg-amber-600 text-white font-semibold opacity-60" >
       上級 🌰 栗（今週末実装）
     </a>
   </div>
