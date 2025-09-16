@@ -4,7 +4,7 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true, type: "module" %>
 </head>
 <body class="min-h-dvh bg-amber-50 text-slate-900">
   <main class="max-w-3xl mx-auto px-4 py-8"><%= yield %></main>

@@ -13,13 +13,25 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
   let intervalId;
   let isSpacePressed = false;
 
-  // 目標秒数を画面に表示する（showIdeal = true のときだけ）
+  // // 目標秒数を画面に表示する（showIdeal = true のときだけ）
+  // if (showIdeal && idealDisplay) {
+  //   idealDisplay.textContent = `目標: ${getIdealTime()} 秒`;
+  // }
+  // else{
+  //   idealDisplay.textContent = `目標: ?? 秒`;
+  // }
+
+  // ↑のデバッグ用
+  console.log("DEBUG showIdeal:", showIdeal, "idealDisplay:", idealDisplay);
   if (showIdeal && idealDisplay) {
+    console.log("DEBUG -> setting real value");
     idealDisplay.textContent = `目標: ${getIdealTime()} 秒`;
   }
-  else{
+  else {
+    console.log("DEBUG -> setting ?? 秒");
     idealDisplay.textContent = `目標: ?? 秒`;
   }
+
 
   // ボタン押下開始時の処理
   const startHandler = () => {
@@ -36,6 +48,7 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
       timerDisplay.textContent = `${elapsed.toFixed(2)} 秒`;  // 画面に表示
 
       // 経過時間によって画像ステータスを変更
+      let newState;
       if (elapsed < 8.0)        newState = "raw";
       else if (elapsed < 9.5)   newState = "half";
       else if (elapsed <= 10.5) newState = "good";

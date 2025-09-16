@@ -2,5 +2,4 @@
 import "@hotwired/turbo-rails"
 import "./controllers"
 import "./game_common"
-import "./games/sanma.js"
-import "./games/yakiimo.js"
+import "./games"
