@@ -1,5 +1,5 @@
 // 他のモードからも共通で呼び出せる関数をエクスポートする
-export function startGame(getIdealTime, { modeName, showIdeal = false }) {
+export function startGame(getIdealTime, { modeName, showIdeal = false, realtimeImage = true }) {
   console.log("DEBUG: startGame triggered"); //デバッグ用
   // ボタン、表示用要素を取得
   const button = document.getElementById("start-btn");
@@ -40,6 +40,9 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
     result.textContent = "焼き中…🔥";      // 状態メッセージを表示
     button.classList.add("bg-amber-700"); // 押下中にボタンの色を変更
 
+    // 画像の初期化
+    if(image)   image.src = image.dataset.raw;
+
     let currentState = null; // いま表示している状態を保持
 
     // 経過時間を0.01秒単位で更新するタイマーを起動
@@ -47,18 +50,20 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
       const elapsed = (performance.now() - startTime) / 1000; // 経過秒数
       timerDisplay.textContent = `${elapsed.toFixed(2)} 秒`;  // 画面に表示
 
-      // 経過時間によって画像ステータスを変更
-      let newState;
-      if (elapsed < 8.0)        newState = "raw";
-      else if (elapsed < 9.5)   newState = "half";
-      else if (elapsed <= 10.5) newState = "good";
-      else if (elapsed <= 12.0) newState = "almost";
-      else                      newState = "burnt";
+      if (realtimeImage && image) {
+        // 経過時間によって画像ステータスを変更
+        let newState;
+        if (elapsed < 8.0)        newState = "raw";
+        else if (elapsed < 9.5)   newState = "half";
+        else if (elapsed <= 10.5) newState = "good";
+        else if (elapsed <= 12.0) newState = "almost";
+        else                      newState = "burnt";
 
-      // 状態が変わったときだけsrcを更新
-      if (newState !== currentState){
-        image.src = image.dataset[newState];
-        currentState = newState;
+        // 状態が変わったときだけsrcを更新
+        if (newState !== currentState){
+          image.src = image.dataset[newState];
+          currentState = newState;
+        }
       }
     }, 10); // 10msごとに更新（=0.01秒単位）
   };
@@ -86,6 +91,17 @@ export function startGame(getIdealTime, { modeName, showIdeal = false }) {
 
     // 結果を画面に表示
     result.innerHTML = message;
+
+    if (!realtimeImage && image) {
+      let newState;
+      // TODO：焼き芋画像が出来たら名前を修正
+      if (diff < 8.0)       newState = "raw";
+      else if(diff < 9.5)   newState = "half";
+      else if(diff < 10.5)  newState = "good";
+      else if(diff < 12.0)  newState = "almost";
+      else                  newState = "burnt";
+      image.src = image.dataset[newState];
+    }
   };
 
   // ---イベント登録---
