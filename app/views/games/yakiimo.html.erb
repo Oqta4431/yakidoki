@@ -9,8 +9,14 @@
   <p id="timer" class="text-2xl font-mono text-amber-900">0.00 秒</p>
 
   <!-- サンマ画像 -->
-  <!-- <img id="food-image" src="/images/sanma_raw.png" class="w-64 h-auto" />
-  -->
+  <%= image_tag "sanma_raw.png", id: "food-image", class: "w-64 h-auto",
+      data: {
+        raw:    asset_path("sanma_raw.png"),
+        half:   asset_path("sanma_half.png"),
+        good:   asset_path("sanma_good.png"),
+        almost: asset_path("sanma_almost.png"),
+        burnt:  asset_path("sanma_burnt.png")
+      } %>
 
   <button id="start-btn"
           class="w-72 h-20 rounded-2xl text-xl font-semibold
