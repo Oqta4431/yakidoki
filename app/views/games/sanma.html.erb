@@ -8,7 +8,7 @@
   <!-- デバッグ用：リアルタイム経過秒数 -->
   <p id="timer" class="text-2xl font-mono text-amber-900">0.00 秒</p>
 
-  <!-- サンマ画像 -->
+  <!-- 画像 -->
   <%= image_tag "sanma_raw.png", id: "food-image", class: "w-64 h-auto",
       data: {
         raw:    asset_path("sanma_raw.png"),
@@ -25,7 +25,21 @@
     🔥 長押しして焼こう！
   </button>
 
-  <p id="result" class="text-lg text-amber-900"></p>
+  <p id="result" class="text-lg text-amber-900 hidden"></p>
 
+  <div class="flex gap-4">
   <%= link_to "🏠 ホームへ戻る", root_path, class: "text-amber-800 underline" %>
+
+  <!-- X共有リンク -->
+  <%= link_to "https://twitter.com/intent/tweet?text=ヤキドキでサンマ🐟を焼いたよ！%20%23ヤキドキ%0A&url=#{root_url}",
+              target: "_blank",
+              rel: "noopener",
+              class: "inline-flex items-center justify-center w-9 h-9 rounded-full border border-slate-300 hover:bg-slate-100" do %>
+    <!-- Xアイコン（SVGでOK。適当な見た目用意したよ）-->
+    <svg viewBox="0 0 24 24" class="w-5 h-5" aria-hidden="true">
+      <path d="M18.9 3H22l-7.9 9.1L22.7 21H16L10.7 14.7 4.6 21H1.5l8.6-9.9L1.2 3H8l4.8 6.2L18.9 3z" fill="currentColor"/>
+    </svg>
+  <% end %>
+  </div>
+
 </div>

@@ -1,57 +1,94 @@
-// 他のモードからも共通で呼び出せる関数をエクスポートする
-export function startGame(getIdealTime, { modeName, showIdeal = false, realtimeImage = true }) {
-  console.log("DEBUG: startGame triggered"); //デバッグ用
-  // ボタン、表示用要素を取得
+export function startGame(getIdealTime, {
+
+  modeName,
+  showIdeal = false,
+  showTimer = true,
+  realtimeImage = true
+
+}) {
+
   const button = document.getElementById("start-btn");
   const result = document.getElementById("result");
   const idealDisplay = document.getElementById("ideal-time");
-  const timerDisplay = document.getElementById("timer"); // 経過時間表示用
-  const image = document.getElementById("food-image");   // 画像表示用
+  const timerDisplay = document.getElementById("timer");
+  const image = document.getElementById("food-image");
+  let totalElapsed = 0;
+  let simulatedElapsed;
 
-  // 計測開始時刻、タイマーID、スペースキー押下フラグを保持する変数
-  let startTime;
-  let intervalId;
+  let startTime = null;
+  let intervalId =  null;
   let isSpacePressed = false;
+  let currentIdeal = getIdealTime();
 
-  // // 目標秒数を画面に表示する（showIdeal = true のときだけ）
-  // if (showIdeal && idealDisplay) {
-  //   idealDisplay.textContent = `目標: ${getIdealTime()} 秒`;
-  // }
-  // else{
-  //   idealDisplay.textContent = `目標: ?? 秒`;
-  // }
-
-  // ↑のデバッグ用
-  console.log("DEBUG showIdeal:", showIdeal, "idealDisplay:", idealDisplay);
   if (showIdeal && idealDisplay) {
-    console.log("DEBUG -> setting real value");
-    idealDisplay.textContent = `目標: ${getIdealTime()} 秒`;
+    idealDisplay.textContent = `目標: ${currentIdeal} 秒`;
   }
   else {
-    console.log("DEBUG -> setting ?? 秒");
-    idealDisplay.textContent = `目標: ?? 秒`;
+    if (modeName === "kuri"){
+      idealDisplay.textContent = `目標: ランダム(8~12秒)`;
+      timerDisplay.textContent = `焼いてみよう！`;
+    }
+    else if(modeName === "yakiimo"){
+      idealDisplay.textContent = `目標: ?? 秒`;
+      timerDisplay.textContent = `焼いてみよう！`;
+    }
   }
 
+  const resetForNext = () =>{
+    clearInterval(intervalId);
+    startTime = null;
+    intervalId = null;
+    totalElapsed = 0;
+    simulatedElapsed = 0;
+    if (image) image.src = image.dataset.raw;
+    if (timerDisplay) timerDisplay.textContent = "0.00 秒";
+    if (result) result.textContent = "";
+    currentIdeal = getIdealTime();
+    if (showIdeal && idealDisplay) {
+      idealDisplay.textContent = `目標: ${currentIdeal} 秒`;
+    }
+  };
 
-  // ボタン押下開始時の処理
   const startHandler = () => {
-    console.log("DEBUG: startHandler triggered"); //デバッグ用
-    startTime = performance.now();        // 現在時刻を保存
-    result.textContent = "焼き中…🔥";      // 状態メッセージを表示
-    button.classList.add("bg-amber-700"); // 押下中にボタンの色を変更
+    if (startTime === null && result?.textContent) {
+      resetForNext();
+    }
 
-    // 画像の初期化
-    if(image)   image.src = image.dataset.raw;
+    if (intervalId) return;
+    startTime = performance.now();
+    result.textContent = "焼き中…🔥";
+    button.classList.add("bg-amber-700");
+    button.textContent = "🔥 長押しして焼こう！";
 
-    let currentState = null; // いま表示している状態を保持
+    if (image)   image.src = image.dataset.raw;
+    if (modeName === "yakiimo" && image ) image.src = image.dataset.burning;
+    if (modeName === "kuri" && image ) image.src = image.dataset.burning;
 
-    // 経過時間を0.01秒単位で更新するタイマーを起動
+    let currentState = null;
+
     intervalId = setInterval(() => {
-      const elapsed = (performance.now() - startTime) / 1000; // 経過秒数
-      timerDisplay.textContent = `${elapsed.toFixed(2)} 秒`;  // 画面に表示
+      const elapsed = (performance.now() - startTime) / 1000;
+      simulatedElapsed = totalElapsed + elapsed;
 
-      if (realtimeImage && image) {
-        // 経過時間によって画像ステータスを変更
+      if (showTimer){
+        if (timerDisplay) timerDisplay.textContent = `${simulatedElapsed.toFixed(2)} 秒`;
+      }
+      else timerDisplay.textContent = "焼き中...🔥";
+
+      if ((modeName === "kuri") && simulatedElapsed > currentIdeal) {
+        clearInterval(intervalId);
+        intervalId = null;
+        if (image) image.src = image.dataset.burnt;
+        result.textContent = "💥 爆発！";
+        timerDisplay.textContent = "💥 爆発！";
+        button.classList.remove("bg-amber-700");
+        button.textContent = "🔥 もう一度焼いてみよう！";
+        startTime = null;
+        totalElapsed = 0;
+        return;
+      }
+
+      if ((modeName !== "kuri") && realtimeImage && image) {
         let newState;
         if (elapsed < 8.0)        newState = "raw";
         else if (elapsed < 9.5)   newState = "half";
@@ -59,37 +96,60 @@ export function startGame(getIdealTime, { modeName, showIdeal = false, realtimeI
         else if (elapsed <= 12.0) newState = "almost";
         else                      newState = "burnt";
 
-        // 状態が変わったときだけsrcを更新
         if (newState !== currentState){
           image.src = image.dataset[newState];
           currentState = newState;
         }
       }
-    }, 10); // 10msごとに更新（=0.01秒単位）
+    }, 10);
   };
 
-  // ボタン押下終了時の処理
   const endHandler = () => {
-    clearInterval(intervalId);                // タイマーを止める
-    button.classList.remove("bg-amber-700");  // 押下中の色を解除
+    if (!startTime) return;
+    clearInterval(intervalId);
+    intervalId = null;
+    button.classList.remove("bg-amber-700");
 
-    // 実際に押していた時間を計算
     const endTime = performance.now();
     const diff = (endTime - startTime) / 1000;
-    const ideal = getIdealTime();
-    const gap = Math.abs(diff - ideal);
 
-    // 誤差に応じて結果メッセージを決定
-    let message;
-    if (gap < 0.5) {
-      message = `✨ 大成功！ ${diff.toFixed(2)}秒`;
-    } else if (gap < 2) {
-      message = `まぁまぁ… ${diff.toFixed(2)}秒`;
-    } else {
-      message = `💀 失敗！ ${diff.toFixed(2)}秒`;
+    totalElapsed += diff;
+
+    if (modeName === "kuri") {
+      if (totalElapsed < currentIdeal - 0.5) {
+        timerDisplay.textContent = "まだ焼ける！";
+        if (image) image.src = image.dataset.raw;
+      }
+      else if (totalElapsed <= currentIdeal) {
+        timerDisplay.textContent = "✨ 美味しそう！";
+        startTime = null;
+        if (image) image.src = image.dataset.good;
+        button.textContent = "🔥 もう一度焼いてみよう！";
+      }
+
+      return;
     }
 
-    // 結果を画面に表示
+    let message;
+
+    if (diff < 8.0){
+      message = `🙅  生すぎ！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 9.5){
+      message = `🤏 半生！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 10.5){
+      message = `✨ 美味しそう！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 12.0){
+      message = `🤨 ちょい焦げ！\n${diff.toFixed(2)}秒`;
+    }
+    else{
+      message = `💀 黒焦げ\n${diff.toFixed(2)}秒`;
+    }
+
+    timerDisplay.textContent = message;
+    button.textContent = "🔥 もう一度焼いてみよう！";
     result.innerHTML = message;
 
     if (!realtimeImage && image) {
@@ -102,6 +162,8 @@ export function startGame(getIdealTime, { modeName, showIdeal = false, realtimeI
       else                  newState = "burnt";
       image.src = image.dataset[newState];
     }
+
+    startTime = null;
   };
 
   // ---イベント登録---
