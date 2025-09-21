@@ -2,11 +2,11 @@ export function startGame(getIdealTime, {
 
   modeName,
   showIdeal = false,
+  showTimer = true,
   realtimeImage = true
 
 }) {
 
-  console.log("DEBUG: startGame triggered"); //デバッグ用
   const button = document.getElementById("start-btn");
   const result = document.getElementById("result");
   const idealDisplay = document.getElementById("ideal-time");
@@ -20,15 +20,18 @@ export function startGame(getIdealTime, {
   let isSpacePressed = false;
   let currentIdeal = getIdealTime();
 
-  console.log("DEBUG showIdeal:", showIdeal, ", idealDisplay:", idealDisplay);
   if (showIdeal && idealDisplay) {
-    console.log("DEBUG -> setting real value");
     idealDisplay.textContent = `目標: ${currentIdeal} 秒`;
   }
   else {
-    console.log("DEBUG -> setting ?? 秒");
-    if (modeName === "kuri") idealDisplay.textContent = `目標: ランダム(8~12秒)`;
-    else if(modeName === "yakiimo") idealDisplay.textContent = `目標: ?? 秒`;
+    if (modeName === "kuri"){
+      idealDisplay.textContent = `目標: ランダム(8~12秒)`;
+      timerDisplay.textContent = `焼いてみよう！`;
+    }
+    else if(modeName === "yakiimo"){
+      idealDisplay.textContent = `目標: ?? 秒`;
+      timerDisplay.textContent = `焼いてみよう！`;
+    }
   }
 
   const resetForNext = () =>{
@@ -47,33 +50,39 @@ export function startGame(getIdealTime, {
   };
 
   const startHandler = () => {
-    console.log("currentIdeal:", currentIdeal)
     if (startTime === null && result?.textContent) {
       resetForNext();
     }
 
     if (intervalId) return;
-    console.log("DEBUG: startHandler triggered");
     startTime = performance.now();
     result.textContent = "焼き中…🔥";
     button.classList.add("bg-amber-700");
+    button.textContent = "🔥 長押しして焼こう！";
 
     if (image)   image.src = image.dataset.raw;
+    if (modeName === "yakiimo" && image ) image.src = image.dataset.burning;
+    if (modeName === "kuri" && image ) image.src = image.dataset.burning;
 
     let currentState = null;
 
     intervalId = setInterval(() => {
       const elapsed = (performance.now() - startTime) / 1000;
       simulatedElapsed = totalElapsed + elapsed;
-      if (timerDisplay) timerDisplay.textContent = `${simulatedElapsed.toFixed(2)} 秒`;
+
+      if (showTimer){
+        if (timerDisplay) timerDisplay.textContent = `${simulatedElapsed.toFixed(2)} 秒`;
+      }
+      else timerDisplay.textContent = "焼き中...🔥";
 
       if ((modeName === "kuri") && simulatedElapsed > currentIdeal) {
-        console.log("DEBUG startHandler -> kuriMode");
         clearInterval(intervalId);
         intervalId = null;
         if (image) image.src = image.dataset.burnt;
         result.textContent = "💥 爆発！";
+        timerDisplay.textContent = "💥 爆発！";
         button.classList.remove("bg-amber-700");
+        button.textContent = "🔥 もう一度焼いてみよう！";
         startTime = null;
         totalElapsed = 0;
         return;
@@ -106,18 +115,16 @@ export function startGame(getIdealTime, {
 
     totalElapsed += diff;
 
-    console.log("DEBUG endHandler totalElapsed:",totalElapsed);
-
     if (modeName === "kuri") {
-      console.log("DEBUG endHandler -> kuriMode");
       if (totalElapsed < currentIdeal - 0.5) {
-        result.textContent = "まだ焼ける！";
+        timerDisplay.textContent = "まだ焼ける！";
         if (image) image.src = image.dataset.raw;
       }
       else if (totalElapsed <= currentIdeal) {
-        result.textContent = "✨ 美味しそう！";
+        timerDisplay.textContent = "✨ 美味しそう！";
         startTime = null;
         if (image) image.src = image.dataset.good;
+        button.textContent = "🔥 もう一度焼いてみよう！";
       }
 
       return;
@@ -125,16 +132,27 @@ export function startGame(getIdealTime, {
 
     let message;
 
-    if (diff < 8.0)       message = `🐟️  生すぎ！ ${diff.toFixed(2)}秒`;
-    else if(diff < 9.5)   message = `🤏 半生！ ${diff.toFixed(2)}秒`;
-    else if(diff < 10.5)  message = `✨ 美味しそう！ ${diff.toFixed(2)}秒`;
-    else if(diff < 12.0)  message = `🔥 ちょい焦げ！ ${diff.toFixed(2)}秒`;
-    else                  message = `💀 黒焦げ ${diff.toFixed(2)}秒`;
+    if (diff < 8.0){
+      message = `🙅  生すぎ！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 9.5){
+      message = `🤏 半生！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 10.5){
+      message = `✨ 美味しそう！\n${diff.toFixed(2)}秒`;
+    }
+    else if(diff < 12.0){
+      message = `🤨 ちょい焦げ！\n${diff.toFixed(2)}秒`;
+    }
+    else{
+      message = `💀 黒焦げ\n${diff.toFixed(2)}秒`;
+    }
 
+    timerDisplay.textContent = message;
+    button.textContent = "🔥 もう一度焼いてみよう！";
     result.innerHTML = message;
 
     if (!realtimeImage && image) {
-      console.log("DEBUG -> elseMode");
       let newState;
       // TODO：焼き芋画像が出来たら名前を修正
       if (diff < 8.0)       newState = "raw";

@@ -5,11 +5,11 @@ document.addEventListener("turbo:load", () => {
   const path = window.location.pathname;
 
   if (path.includes("/games/sanma")){
-    startGame(() => 10, {modeName: "sanma", showIdeal: true, realtimeImage: true, kuriMode: false });
+    startGame(() => 10, {modeName: "sanma", showIdeal: true, showTimer: true, realtimeImage: true });
   }
 
   if (path.includes("/games/yakiimo")) {
-    startGame(() => 10, { modeName: "yakiimo", showIdeal: false, realtimeImage: false, kuriMode: false });
+    startGame(() => 10, { modeName: "yakiimo", showIdeal: false, showTimer: false, realtimeImage: false });
   }
 
   if (path.includes("/games/kuri")) {
@@ -21,6 +21,7 @@ document.addEventListener("turbo:load", () => {
     startGame(randomKuriTime, {
       modeName: "kuri",
       showIdeal: false,
+      showTimer: false,
       realtimeImage: false,
     });
   }

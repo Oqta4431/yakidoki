@@ -8,14 +8,13 @@
   <!-- デバッグ用：リアルタイム経過秒数 -->
   <p id="timer" class="text-2xl font-mono text-amber-900">0.00 秒</p>
 
-  <!-- サンマ画像 -->
-  <%= image_tag "sanma_raw.png", id: "food-image", class: "w-64 h-auto",
+  <!-- 画像 -->
+  <%= image_tag "kuri_raw.png", id: "food-image", class: "w-64 h-auto",
       data: {
-        raw:    asset_path("sanma_raw.png"),
-        half:   asset_path("sanma_half.png"),
-        good:   asset_path("sanma_good.png"),
-        almost: asset_path("sanma_almost.png"),
-        burnt:  asset_path("sanma_burnt.png")
+        raw:    asset_path("kuri_raw.png"),
+        good:   asset_path("kuri_good.png"),
+        burnt:  asset_path("kuri_burnt.png"),
+        burning:  asset_path("kuri_burning.png")
       } %>
 
   <button id="start-btn"
@@ -25,7 +24,7 @@
     🔥 長押しして焼こう！
   </button>
 
-  <p id="result" class="text-lg text-amber-900"></p>
+  <p id="result" class="text-lg text-amber-900 hidden"></p>
 
   <div class="flex gap-4">
   <%= link_to "🏠 ホームへ戻る", root_path, class: "text-amber-800 underline" %>
