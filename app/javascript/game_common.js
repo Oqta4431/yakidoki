@@ -117,7 +117,8 @@ export function startGame(getIdealTime, {
 
     if (modeName === "kuri") {
       if (totalElapsed < currentIdeal - 0.5) {
-        timerDisplay.textContent = "まだ焼ける！";
+        timerDisplay.textContent = `まだ焼ける！
+        今の焼き時間：${totalElapsed.toFixed(2)}秒`;
         if (image) image.src = image.dataset.raw;
       }
       else if (totalElapsed <= currentIdeal) {
