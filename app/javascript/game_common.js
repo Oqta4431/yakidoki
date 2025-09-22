@@ -168,13 +168,28 @@ export function startGame(getIdealTime, {
   };
 
   // ---イベント登録---
-  // マウス操作
-  button.addEventListener("mousedown", startHandler);
-  button.addEventListener("mouseup", endHandler);
+  // ↓touchイベントとmouseイベントはどちらも書くと同時発火するので使用しない
+  // // マウス操作
+  // button.addEventListener("mousedown", startHandler);
+  // button.addEventListener("mouseup", endHandler);
 
-  // スマホタッチ操作
-  button.addEventListener("touchstart", startHandler);
-  button.addEventListener("touchend", endHandler);
+  // // スマホタッチ操作
+  // button.addEventListener("touchstart", startHandler);
+  // button.addEventListener("touchend", endHandler);
+
+  // pointerイベントに統一する↓
+  // ---イベント登録（Pointer Events に一本化）---
+  // 指/マウス/ペンすべてこれで対応
+  button.addEventListener("pointerdown", (e) => {
+    // スクロール・長押しメニュー抑制
+    e.preventDefault();
+    startHandler();
+  });
+
+  button.addEventListener("pointerup", (e) => {
+    e.preventDefault();
+    endHandler();
+  });
 
   // スペースキー押下開始
   document.addEventListener("keydown", (e) => {
